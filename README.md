@@ -38,5 +38,5 @@ DISCORD_TOKEN=<your discord bot token>
 Finally, run the bot:
 
 ```
-$ python main.py
+$ python3 main.py
 ```
