@@ -1,2 +1,3 @@
 distanceMatrix.npy
+__pycache__/
 .env
