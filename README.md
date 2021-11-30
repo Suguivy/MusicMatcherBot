@@ -29,7 +29,7 @@ Now install all the required `pip3` packages:
 pip3 install youtube-search-python discord.py python-dotenv youtube_dl
 ```
 
-Create a new file called `.env` and put the following text in it, replacing `<your discord bot token> with your Discord bot token:
+Create a new file called `.env` and put the following text in it, replacing `<your discord bot token>` with your Discord bot token:
 
 ```
 DISCORD_TOKEN=<your discord bot token>
