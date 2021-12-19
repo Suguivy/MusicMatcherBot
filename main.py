@@ -29,7 +29,7 @@ def readable_queue():
     if len(queue) == 0:
         return "The queue is empty."
     else:
-        return '\n'.join([f'{i} - _{v["title"]}_' for i, v in enumerate(queue)])
+        return '\n'.join([f'{i+1} - _{v["title"]}_' for i, v in enumerate(queue)])
 
 def id_to_url(id):
     return f"https://youtube.com/watch?v={id}"
@@ -41,8 +41,6 @@ async def id_to_video(id):
 async def search_by_title(title, num_of_results=1):
     result = await VideosSearch(title, limit = num_of_results).next()
     return result['result'][0]
-async def play(ctx):
-    pass
 
 @bot.event
 async def on_ready():
@@ -80,7 +78,7 @@ async def _play(ctx):
     await ctx.send("The queue is empty.")
 
 @bot.group(name='join', aliases=['j'])
-async def join(ctx):
+async def _join(ctx):
     if not ctx.message.author.voice:
         await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.name))
         return
@@ -89,7 +87,7 @@ async def join(ctx):
         await channel.connect()
 
 @bot.command(name='leave', alisases=['l'])
-async def leave(ctx):
+async def _leave(ctx):
     voice_client = ctx.message.guild.voice_client
     if voice_client.is_connected():
         await voice_client.disconnect()
@@ -97,7 +95,7 @@ async def leave(ctx):
         await ctx.send("The bot is not connected to a voice channel.")
 
 @bot.command(name='pause', aliases=['pp'])
-async def pause(ctx):
+async def _pause(ctx):
     voice_client = ctx.message.guild.voice_client
     if voice_client.is_playing():
         voice_client.pause()
@@ -105,7 +103,7 @@ async def pause(ctx):
         await ctx.send("The bot is not playing anything at the moment.")
 
 @bot.command(name='resume', aliases=['r'], help='Resumes the song')
-async def resume(ctx):
+async def _resume(ctx):
     voice_client = ctx.message.guild.voice_client
     if voice_client.is_paused():
         voice_client.resume()
@@ -113,7 +111,7 @@ async def resume(ctx):
         await ctx.send("I wasn't playing anything before this. Use `!play` or `!p`")
 
 @bot.command(name='stop', aliases=['s'])
-async def stop(ctx):
+async def _stop(ctx):
     voice_client = ctx.message.guild.voice_client
     if voice_client.is_playing():
         voice_client.stop()
