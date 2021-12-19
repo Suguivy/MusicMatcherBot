@@ -1,3 +1,7 @@
 distanceMatrix.npy
 __pycache__/
 .env
+bot-env/
+downloaded_data_cache/
+nltk_data/
+recommender_data/
