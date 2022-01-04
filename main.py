@@ -51,7 +51,7 @@ async def _showqueue(ctx):
     await ctx.send(readable_queue())
 
 @bot.command(name='create', aliases=['c'])
-async def _create(ctx, title, count=1):
+async def _create(ctx, title, count=5):
     similar = recommender.similar_by_exact_title(title, count)
     similar_search_titles = [f'{song_title} {song_artist}' for song_title, song_artist in similar]
     results = [await search_by_title(title) for title in similar_search_titles]
@@ -60,22 +60,24 @@ async def _create(ctx, title, count=1):
 
 @bot.command(name='play', aliases=['p'])
 async def _play(ctx):
-    while len(queue) > 0:
-        server = ctx.message.guild
-        voice_channel = server.voice_client
-        if not (voice_channel and voice_channel.is_connected()):
-            await ctx.send('I\'m not connected to a voice channel, but I will connect to your current voice channel.')
-            await join(ctx)
+    if len(queue) > 0:
+        while len(queue) > 0:
             server = ctx.message.guild
             voice_channel = server.voice_client
-        video = queue.pop(0)
-        async with ctx.typing():
-            filename = await YTDLSource.from_url(id_to_url(video['id']), loop=bot.loop)
-            voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=filename))
-        await ctx.send(f'**Playing:** {video["title"]}')
-        while voice_channel.is_playing():
-            await asyncio.sleep(.1)
-    await ctx.send("The queue is empty.")
+            if not (voice_channel and voice_channel.is_connected()):
+                await ctx.send('I\'m not connected to a voice channel, but I will connect to your current voice channel.')
+                await join(ctx)
+                server = ctx.message.guild
+                voice_channel = server.voice_client
+            video = queue.pop(0)
+            async with ctx.typing():
+                filename = await YTDLSource.from_url(id_to_url(video['id']), loop=bot.loop)
+                voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=filename))
+            await ctx.send(f'**Playing:** {video["title"]}')
+            while voice_channel.is_playing() or voice_channel.is_paused():
+                await asyncio.sleep(.1)
+    else:
+        await ctx.send("The queue is empty.")
 
 @bot.group(name='join', aliases=['j'])
 async def _join(ctx):
@@ -110,13 +112,23 @@ async def _resume(ctx):
     else:
         await ctx.send("I wasn't playing anything before this. Use `!play` or `!p`")
 
-@bot.command(name='stop', aliases=['s'])
+@bot.command(name='next', aliases=['n'])
 async def _stop(ctx):
     voice_client = ctx.message.guild.voice_client
     if voice_client.is_playing():
         voice_client.stop()
     else:
         await ctx.send("The bot is not playing anything at the moment.")
+
+@bot.command(name='stop', aliases=['s'])
+async def _stop(ctx):
+    voice_client = ctx.message.guild.voice_client
+    if voice_client.is_playing():
+        queue.clear()
+        voice_client.stop()
+    else:
+        await ctx.send("The bot is not playing anything at the moment.")
+
 
 if __name__ == "__main__" :
     bot.run(TOKEN)

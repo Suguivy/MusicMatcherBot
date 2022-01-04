@@ -48,9 +48,10 @@ The bot has a queue of songs. You must first to add songs to the queue before pl
 The bot is controlled by commands. These commands are:
 - `!join`, `!j`: tells the bot to join the audio channel.
 - `!leave`, `!l`: tells the bot to leave the audio channel.
-- `!create <title> [<count>=1]`, `!c`: searches and adds to the queue recommendations based on the given `<title>`. It will add as many songs as the `<count>` value (1 if ommited).
+- `!create <title> [<count>=5]`, `!c`: searches and adds to the queue the specified song and some recommendations based on the given `<title>`. It will add as many songs as the `<count>` value (5 if ommited).
 - `!showqueue`, `!q`: shows the current queue.
 - `!play`, `!p`: plays in order the songs of the queue, removing it from the queue.
 - `!pause`, `!pp`: if a song is playing, it pauses the reproduction.
 - `!resume`, `!r`: if a song is paused, it resumes the reproduction.
-- `!stop`, `!s`: it stops the reproduction.
+- `!next`, `!n`: if a song is playing, it stops it and plays the next song.
+- `!stop`, `!s`: it stops the reproduction of all songs in the queue.

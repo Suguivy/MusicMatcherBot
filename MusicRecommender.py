@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 import os
 import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 
@@ -38,26 +35,9 @@ class MusicRecommender:
         print(f"Loading and converting '{csv_file}' into a dataset...")
 
         df = pd.read_csv(csv_file)
-        df = df.query("language == 'en'") # We only want songs in english to get appropiate words to work with
+        df = df.sample(n=15000)
         df = df.reset_index()
-        df['english_index'] = range(0, len(df))
-
-        # Tokenization of words
-        nltk.download('punkt', download_dir='./nltk_data')
-        nltk.download('stopwords', download_dir='./nltk_data')
-        nltk.data.path.append('./nltk_data')
-        ps = PorterStemmer()
-        preprocessed_text = []
-        i = 0
-        for row in df.itertuples():
-            tokenized_words = word_tokenize(row.lyrics)
-            stops = set(stopwords.words("english"))
-            words = [ps.stem(word) for word in tokenized_words if not word in stops and word.isalnum()]
-            words = " ".join(words)
-            preprocessed_text.append(words)
-
         self.dataset = df
-        self.dataset['processed_text'] = preprocessed_text
 
         print(f"Saving dataset as '{save_file}'")
         self.dataset.to_pickle(save_file)
@@ -72,37 +52,49 @@ class MusicRecommender:
         print("Calculating matrix from dataset...")
 
         # Creation of the bag of words
-        bow_model = TfidfVectorizer()
-        bow_model.fit(self.dataset['processed_text'])
-        texts_bow = bow_model.transform(self.dataset['processed_text'])
+        bow_model = TfidfVectorizer(max_features=5000)
+        bow_model.fit(self.dataset['lyrics'])
+        texts_bow = bow_model.transform(self.dataset['lyrics'])
 
-        configuration = {
-            'lyrics': { 'value': texts_bow,
-                        'metric': 'cosine',
-                        'weight': 1
-                      },
-            'valences': self._make_column_conf('valence','l1',20),
-            #'loudness': { 'value': getColumnValues('loudness',preprocessedData), 'metric': 'l1', 'weight': 20},
-            'tempo': self._make_column_conf('tempo','l1',20),
-            'danceability': self._make_column_conf('danceability','l1',20),
-            'energy': self._make_column_conf('energy','l1',20),
-            'speechiness': self._make_column_conf('speechiness','l1',20),
-            'acousticness': self._make_column_conf('acousticness','l1',20),
-            'instrumentalness': self._make_column_conf('instrumentalness','l1',20),
-            #'key' : self._make_column_conf('key','l1',20),
-            #'mode' : self._make_column_conf('mode','l1',20),
-        }
+        configuration_params = [
+                  [texts_bow,'cosine',1],
+                  #[genreBoW,'cosine',8],
+                  ['dating','l2',4],
+                  #['violence','l2',4],
+                  ['world/life','l2',4],
+                  ['night/time','l2',4],
+                  ['shake the audience','l2',4],
+                  ['family/gospel','l2',4],
+                  ['romantic','l2',4],
+                  ['communication','l2',4],
+                  ['obscene','l2',4],
+                  ['music','l2',4],
+                  ['movement/places','l2',4],
+                  ['light/visual perceptions','l2',4],
+                  ['family/spiritual','l2',4],
+                  ['like/girls','l2',4],
+                  ['sadness','l2',4],
+                  ['feelings','l2',4],
+                  ['danceability','l2',4],
+                  ['loudness','l2',4],
+                  ['acousticness','l2',4],
+                  ['instrumentalness','l2',4],
+                  ['valence','l2',4],
+                  ['energy','l2',4],
+                  ['age','l2',4]
+                ]
+        configuration = list(map(lambda v: [self.dataset[v[0]].to_numpy().reshape(-1,1),v[1],v[2]] if isinstance(v[0],str) else v, configuration_params))
 
         # Calculation of the distance matrix
         accum = None
         total = 0
-        for k, v in configuration.items():
-            d = pairwise_distances(v['value'], v['value'], metric=v['metric']) * v['weight']
+        for v in configuration:
+            d = pairwise_distances(v[0], metric=v[1]) * v[2]
             if accum is None:
                 accum = d
             else:
                 accum = accum + d
-            total = total + v['weight']
+            total = total + v[2]
         self.distance_matrix = accum / total
 
         print(f"saving matrix as '{save_file}")
@@ -116,13 +108,11 @@ class MusicRecommender:
             raise Exception(f"distance matrix file '{matrix_file}' not found")
 
     def similar_by_exact_title(self, title, count=1):
-        song_index = self.dataset[self.dataset['track_name']==title].index.values[0]
-        distance_scores = list(enumerate(self.distance_matrix[song_index]))
-        ordered_scores = sorted(distance_scores, key=lambda x: x[1])
-        top_scores = ordered_scores[1:count+1]
-        top_indexes = [i[0] for i in top_scores]
+        song_idx = self.dataset[self.dataset['track_name']==title ].index.values[0]
+        ordered_scores = sorted(enumerate(self.distance_matrix[song_idx]), key=lambda x: x[1])
+        top_scores = ordered_scores[0:count+1]
+        top_idx = [i[0] for i in top_scores]
         top_confidence = [i[1] for i in top_scores]
-        d1 = self.dataset['track_name'].iloc[top_indexes].to_frame()
-        d2 = self.dataset['track_artist'].iloc[top_indexes].to_frame()
-
-        return list(zip(d1['track_name'].tolist(), d2['track_artist'].tolist()))
+        top_similar = pd.Series(top_confidence,index=top_idx)
+        songs = [(self.dataset.iloc[i].track_name, self.dataset.iloc[i].artist_name) for i, _ in top_similar.iteritems()]
+        return songs
