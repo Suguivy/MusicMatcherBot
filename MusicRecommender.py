@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 

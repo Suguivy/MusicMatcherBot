@@ -23,7 +23,7 @@ bot = commands.Bot(command_prefix="!")
 queue = []
 
 recommender = mr.MusicRecommender()
-recommender.load_all_from_csv('recommender_data/spotify_songs.csv', 'recommender_data/dataset', 'recommender_data/matrix.npy')
+recommender.load_all_from_csv('recommender_data/tcc_ceds_music.csv', 'recommender_data/dataset', 'recommender_data/matrix.npy')
 
 def readable_queue():
     if len(queue) == 0:
