@@ -8,7 +8,7 @@ import asyncio
 import MusicRecommender as mr
 
 """
-Most of the code comes from https://python.land/build-discord-bot-in-python-that-plays-music
+Some code comes from https://python.land/build-discord-bot-in-python-that-plays-music
 """
 
 from YTDLSource import YTDLSource
