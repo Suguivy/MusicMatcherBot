@@ -62,3 +62,13 @@ The bot is controlled by commands. These commands are:
 - `!resume`, `!r`: if a song is paused, it resumes the reproduction.
 - `!next`, `!n`: if a song is playing, it stops it and plays the next song.
 - `!stop`, `!s`: it stops the reproduction of all songs in the queue.
+
+## Usage example
+
+Make sure your bot is in your Discord server. Join an audio channel and type `!j` to make the bot join the channel too.
+
+Next, tell the bot to add to the playing queue some songs based on a song you want. For example, if you want similar songs to the song "I Believe" by Frankie Laine, type `!c "i believe"`. You need to write the exact title of the song as it is as its name in the dataset.
+
+The bot will add the corresponding songs on the queue. Each songs is based on the first video of a YT search, searching by the title and the author. You can tell the bot to show the queue with `!q` (if the bot added songs to the queue recently, you may need to wait some seconds to see the actual queue).
+
+To start playing the songs type `!p`. You can control the reproduction with `!pp` (pause), `!r` (resume), `!n` (next song) or `!s` (stop).
