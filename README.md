@@ -26,7 +26,13 @@ pip3 install --upgrade pip
 Now install all the required `pip3` packages:
 
 ```
-pip3 install youtube-search-python discord.py python-dotenv youtube_dl
+pip3 install youtube-search-python discord.py python-dotenv youtube_dl pandas scikit-learn pynacl
+```
+
+Download the dataset the bot uses:
+```
+mkdir recommender_data
+curl https://gitlab.com/bollafa/data-music/-/raw/main/tcc_ceds_music.csv -o recommender_data/tcc_ceds_music.csv
 ```
 
 Create a new file called `.env` and put the following text in it, replacing `<your discord bot token>` with your Discord bot token:
