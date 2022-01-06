@@ -8,6 +8,7 @@ First, clone the repository:
 
 ```
 git clone https://github.com/Suguivy/MusicMatcherBot.git
+cd MusicMatcherBot
 ```
 
 Then create a virtual enviroment. This is very useful for the next step to install all the required packages locally.
